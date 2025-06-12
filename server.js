@@ -8,13 +8,22 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-const FRONTEND_URLS = [
-  'http://localhost:5173', // local dev
-  'https://punyamarisa-9m1u-ramoyj2fe-inayahayudeswitas-projects.vercel.app' // production
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://landing-page-fundunity.vercel.app"
 ];
 
+// CORS middleware untuk Express
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow Postman or non-browser requests
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, origin);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
@@ -30,15 +39,17 @@ const chatRoutes = require('./routes/chat');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
+
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
-
+// Setup Socket.io dengan CORS yang sama
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
+    credentials: true,
   }
 });
 
