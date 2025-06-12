@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const allowedOrigins = ['https://fe-safetalks.vercel.app'];
 
 // ✅ Middleware CORS dengan log origin
-app.use(cors());
+app.use(cors({origin:'*', credentials:true}));
 
 app.use(express.json());
 
