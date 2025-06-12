@@ -8,11 +8,19 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 
-// 🚨 FIXED: Allow all origins (for testing only)
+// ✅ Gunakan whitelist domain yang diizinkan
+const allowedOrigins = ['https://fe-safetalks.vercel.app'];
+
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: false // must be false if origin is '*'
+    credentials: true
 }));
 
 app.use(express.json());
@@ -27,13 +35,19 @@ const chatRoutes = require('./routes/chat');
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 
-// 🚨 FIXED: io CORS also accepts all
+// ✅ Socket.io juga pakai origin yang sama
 const io = new Server(server, {
     cors: {
-      origin: '*',
-      methods: ['GET', 'POST']
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: ['GET', 'POST']
     }
-});  
+});
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
