@@ -8,7 +8,10 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-const FRONTEND_URL = 'https://punyamarisa-9m1u-ramoyj2fe-inayahayudeswitas-projects.vercel.app';
+const FRONTEND_URLS = [
+  'http://localhost:5173', // local dev
+  'https://punyamarisa-9m1u-ramoyj2fe-inayahayudeswitas-projects.vercel.app' // production
+];
 
 app.use(cors({
   origin: FRONTEND_URL,
