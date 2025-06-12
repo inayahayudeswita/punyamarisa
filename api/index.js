@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const serverless = require('serverless-http'); // buat deploy serverless di Vercel
+const serverless = require('serverless-http');
 
 const app = express();
 
@@ -11,10 +11,9 @@ const allowedOrigins = [
   "https://frontend-chat-git-main-inayahayudeswitas-projects.vercel.app"
 ];
 
-// CORS setup
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman or non-browser clients
+    if (!origin) return callback(null, true); // allow Postman/curl
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
@@ -23,24 +22,23 @@ app.use(cors({
 
 app.use(express.json());
 
-// Connect MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Import routes (pastikan path benar, relatif ke api/index.js)
+// import routes (pastikan relative path benar)
 const authRoutes = require('../routes/auth');
 const chatRoutes = require('../routes/chat');
 
-// Mount routes
-app.use('./routes/auth', authRoutes);
-app.use('./routes/chats', chatRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/chats', chatRoutes);
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test endpoint works!' });
+});
 
-// Root route test
 app.get('/', (req, res) => {
   res.send('Backend running on Vercel!');
 });
 
-// Export app and serverless handler
-module.exports = app;
+// untuk vercel serverless export
 module.exports.handler = serverless(app);
