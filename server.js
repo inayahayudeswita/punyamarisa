@@ -9,10 +9,11 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
-}));
+    origin: 'https://frontend-three-ruby-79.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+  }));
+  
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
@@ -26,11 +27,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 
 const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST']
-  }
-});
+    cors: {
+      origin: ['https://frontend-three-ruby-79.vercel.app'],
+      methods: ['GET', 'POST']
+    }
+  });  
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -44,5 +45,10 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.id);
   });
 });
+
+app.get("/", (req, res) => {
+    res.send("SafeTalks Backend Running!");
+  });
+  
 
 server.listen(5050, () => console.log('Server running on port 5050'));
