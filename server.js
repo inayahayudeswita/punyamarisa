@@ -8,12 +8,15 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 
+// ✅ Perbaikan CORS agar semua domain bisa akses dengan credentials
 app.use(cors({
-    origin: ['https://fe-safetalks.vercel.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
-  
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
@@ -27,11 +30,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 
 const io = new Server(server, {
-    cors: {
-      origin: ['https://fe-safetalks.vercel.app'],
-      methods: ['GET', 'POST']
-    }
-  });  
+  cors: {
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
+    methods: ['GET', 'POST']
+  }
+});
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -47,9 +52,8 @@ io.on('connection', (socket) => {
 });
 
 app.get("/", (req, res) => {
-    res.send("SafeTalks Backend Running!");
-  });
-  
+  res.send("SafeTalks Backend Running!");
+});
 
-  const PORT = process.env.PORT || 5050;
-  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));  
+const PORT = process.env.PORT || 5050;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
