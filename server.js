@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-    origin: 'https://frontend-three-ruby-79.vercel.app',
+    origin: 'https://fe-safetalks.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
   }));
@@ -28,7 +28,7 @@ app.use('/api/chats', chatRoutes);
 
 const io = new Server(server, {
     cors: {
-      origin: ['https://frontend-three-ruby-79.vercel.app'],
+      origin: ['https://fe-safetalks.vercel.app'],
       methods: ['GET', 'POST']
     }
   });  
@@ -51,4 +51,5 @@ app.get("/", (req, res) => {
   });
   
 
-server.listen(5050, () => console.log('Server running on port 5050'));
+  const PORT = process.env.PORT || 5050;
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));  
