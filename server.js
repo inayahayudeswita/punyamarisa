@@ -9,39 +9,57 @@ const app = express();
 const server = http.createServer(app);
 
 // ✅ Whitelist domain yang diizinkan
-const allowedOrigins = ['https://fe-safetalks.vercel.app'];
+const allowedOrigins = [
+  'https://fe-safetalks.vercel.app',
+  'https://frontend-three-ruby-79.vercel.app',
+  'http://localhost:3000' // optional untuk pengembangan lokal
+];
 
-// ✅ Middleware CORS dengan log origin
-app.use(cors({origin:'*', credentials:true}));
+// ✅ Konfigurasi CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log('🌐 Request Origin:', origin);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn('❌ CORS blocked for:', origin);
+      callback(new Error('CORS policy violation: Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
 
+// ✅ Middleware CORS diterapkan
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// ✅ MongoDB Connection
+// ✅ Koneksi ke MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ MongoDB Error:', err));
 
-// ✅ Routes
+// ✅ Routing
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 
-// ✅ Socket.io config dengan log origin
+// ✅ Konfigurasi socket.io
 const io = new Server(server, {
-    cors: {
-        origin: function (origin, callback) {
-            console.log('👉 Socket.io Origin:', origin);
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                console.warn('❌ Socket.io Blocked CORS:', origin);
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        methods: ['GET', 'POST']
-    }
+  cors: {
+    origin: function (origin, callback) {
+      console.log('📡 Socket.io Origin:', origin);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn('❌ Socket.io blocked:', origin);
+        callback(new Error('CORS policy violation: Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
 });
 
 io.on('connection', (socket) => {
@@ -57,11 +75,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// ✅ Root route
+// ✅ Endpoint root
 app.get("/", (req, res) => {
-    res.send("SafeTalks Backend Running!");
+  res.send("SafeTalks Backend Running!");
 });
 
-// ✅ Run server
+// ✅ Menjalankan server
 const PORT = process.env.PORT || 5050;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
