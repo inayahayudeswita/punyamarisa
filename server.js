@@ -8,12 +8,13 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 
+// 🚨 FIXED: Allow all origins (for testing only)
 app.use(cors({
-    origin: ['https://fe-safetalks.vercel.app'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
+    credentials: false // must be false if origin is '*'
 }));
-  
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
@@ -26,12 +27,13 @@ const chatRoutes = require('./routes/chat');
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 
+// 🚨 FIXED: io CORS also accepts all
 const io = new Server(server, {
     cors: {
-      origin: ['https://fe-safetalks.vercel.app'],
+      origin: '*',
       methods: ['GET', 'POST']
     }
-  });  
+});  
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -48,8 +50,7 @@ io.on('connection', (socket) => {
 
 app.get("/", (req, res) => {
     res.send("SafeTalks Backend Running!");
-  });
-  
+});
 
-  const PORT = process.env.PORT || 5050;
-  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 5050;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
