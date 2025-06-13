@@ -8,7 +8,7 @@ const app = express();
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://frontend-chat-git-main-inayahayudeswitas-projects.vercel.app"
+  "https://frontend-chat-psi.vercel.app/"
 ];
 
 app.use(cors({
