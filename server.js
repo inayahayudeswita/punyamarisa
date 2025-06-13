@@ -27,8 +27,8 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // import routes (pastikan relative path benar)
-const authRoutes = require('../routes/auth');
-const chatRoutes = require('../routes/chat');
+const authRoutes = require('./routes/auth');
+const chatRoutes = require('./routes/chat');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
